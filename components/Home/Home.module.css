@@ -1,0 +1,180 @@
+/* CSS Variables */
+.container {
+  --primary-color: #333;
+  --secondary-color: #555;
+  --accent-color: #0077cc;
+  --background-color: #fafafa;
+  --text-color: #333;
+  --spacing-unit: 1rem;
+}
+
+/* Dark mode variables */
+@media (prefers-color-scheme: dark) {
+  .container {
+    --background-color: #121212;
+    --text-color: #f5f5f5;
+    --primary-color: #f5f5f5;
+    --secondary-color: #aaaaaa;
+  }
+}
+
+/* Base container styles */
+.container {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, "Open Sans", sans-serif;
+  line-height: 1.6;
+  color: var(--text-color);
+  background-color: var(--background-color);
+  margin: 0;
+  padding: 0;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Header styles */
+.header {
+  text-align: center;
+  margin-bottom: calc(var(--spacing-unit) * 1);
+}
+
+.profileImage {
+  margin: 0 auto calc(var(--spacing-unit) * 2);
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid var(--accent-color);
+}
+
+.profileImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.title {
+  font-size: 2.5rem;
+  margin-bottom: var(--spacing-unit);
+  color: var(--primary-color);
+}
+
+.subtitle {
+  font-size: 1.2rem;
+  color: var(--secondary-color);
+  margin-bottom: calc(var(--spacing-unit) * 1);
+}
+
+/* Main content */
+.mainContent {
+  margin-bottom: calc(var(--spacing-unit) * 1);
+}
+
+.about {
+  margin-bottom: calc(var(--spacing-unit) * 3);
+  text-align: center;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (min-width: 768px) {
+  .about {
+    text-align: left;
+  }
+}
+
+/* Links section */
+.linksSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--spacing-unit) * 1.5);
+  margin-bottom: calc(var(--spacing-unit) * 2);
+}
+
+/* Social links */
+.socialLinks {
+  display: flex;
+  justify-content: center;
+  gap: calc(var(--spacing-unit) * 2);
+  margin-top: calc(var(--spacing-unit));
+}
+
+.socialLink {
+  color: var(--secondary-color);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease, transform 0.2s ease;
+  position: relative;
+  padding: 0.5rem;
+}
+
+.socialLink:hover {
+  color: var(--accent-color);
+  transform: translateY(-2px);
+}
+
+.socialLink::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  bottom: 0;
+  left: 0;
+  background-color: var(--accent-color);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.3s ease;
+}
+
+.socialLink:hover::after {
+  transform: scaleX(1);
+}
+
+/* Company links */
+.companyLink {
+  color: var(--accent-color);
+  text-decoration: none;
+  font-weight: 500;
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+.companyLink:hover {
+  color: #005fa3;
+}
+
+.companyLink::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 1px;
+  bottom: 0;
+  left: 0;
+  background-color: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.3s ease;
+}
+
+.companyLink:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .title {
+    font-size: 2rem;
+  }
+
+  .container {
+    padding: calc(var(--spacing-unit) * 1);
+  }
+}
