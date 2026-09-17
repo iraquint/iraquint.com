@@ -1,9 +1,5 @@
-import Home from "../components/Home/Home";
+import Bio from "../components/Bio/Bio";
 
 export default function HomePage() {
-  return (
-    <div>
-      <Home />
-    </div>
-  );
+  return <Bio />;
 }
