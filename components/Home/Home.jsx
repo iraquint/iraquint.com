@@ -65,7 +65,7 @@ export default function Home() {
         <div className={styles.linksSection}>
           <div className={styles.socialLinks}>
             <Link
-              href="/assets/ira_quint_resume_june_2025.pdf"
+              href="/resume"
               className={styles.socialLink}
               target="_blank"
               rel="noopener"
