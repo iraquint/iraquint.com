@@ -1,57 +1,196 @@
-@import "tailwindcss";
-/* 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --page:  #ffffff;
+    --text:  #16161a;
+    --soft:  #6e6e76;
+    --muted: #a6a6ad;
+    --rule:  #ebebee;
+    --cover: #e7e7ea;      /* redaction block, a shade off the page */
+    --dust:  30, 30, 36;   /* dark specks on a light cover */
+    --glint: 255, 255, 255;
   }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-} */
-
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
-
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    Oxygen, Ubuntu, Cantarell, "Open Sans", sans-serif;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-/* Dark mode support for the entire app */
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
+  :root {
+    --seg-bg:    #f1f1f3;
+    --seg-thumb: #ffffff;
   }
-}
+  :root[data-theme="dark"] {
+    --page:  #0e0e10;
+    --text:  #ececf0;
+    --soft:  #9a9aa4;
+    --muted: #64646e;
+    --rule:  #26262b;
+    --cover: #232328;        /* redaction block, a shade off the page */
+    --dust:  205, 205, 216;  /* light specks on a dark cover */
+    --glint: 255, 255, 255;
+    --seg-bg:    #17171b;
+    --seg-thumb: #34343c;
+  }
+  /* Nyan: deep space page, rainbow redaction bands, white stars. */
+  :root[data-theme="rainbow"] {
+    --page:  #0b0b18;
+    --text:  #f4f4fa;
+    --soft:  #a8a8c4;
+    --muted: #6c6c90;
+    --rule:  #23234a;
+    --cover: #1a1a38;
+    --dust:  255, 255, 255;
+    --glint: 255, 255, 255;
+    --seg-bg:    #15152c;
+    --seg-thumb: #2d2d5e;
+  }
+  html { background: var(--page); }
+
+  /* Gold shimmer, scoped to the footer easter egg. Custom properties inherit,
+     so the canvas picks these up per element without any special-casing. */
+  .gold {
+    --cover: #efe2bd;
+    --dust:  140, 104, 18;
+    --glint: 255, 252, 235;
+    color: #9a7310;
+  }
+  :root[data-theme="dark"] .gold,
+  :root[data-theme="rainbow"] .gold {
+    --cover: #2f2613;
+    --dust:  232, 190, 92;
+    --glint: 255, 248, 210;
+    color: #e2b855;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--text);
+    font: 400 15px/1.95 "Courier New", Courier, ui-monospace, SFMono-Regular, Menlo, monospace;
+    -webkit-font-smoothing: antialiased;
+    display: flex; justify-content: center;
+    padding-block: 44px 56px;
+    padding-left: 20px; padding-right: 20px;
+  }
+  .sheet {
+    width: 100%; max-width: 660px; position: relative;
+    display: flex; flex-direction: column;
+  }
+  /* Name and control share a row; flex handles the vertical alignment. */
+  .namerow { display: flex; align-items: center; }
+
+  h1 {
+    font: 700 15px/1.95 inherit;
+    letter-spacing: .34em; text-transform: uppercase;
+    margin: 0;
+  }
+  .kicker { color: var(--soft); margin: 0 0 10px; }
+  .rule { height: 1px; background: var(--rule); margin: 30px 0; }
+
+  .wrap { position: relative; }
+  #ink { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
+  #doc { position: relative; z-index: 1; }
+
+  .line { min-height: 1.95em; white-space: pre-wrap; word-break: break-word; }
+  /* The footer easter egg is an inline .line, so keep it on the baseline. */
+  .foot .line { min-height: 0; display: inline; }
+  .gap  { height: 1.95em; }
+  .lbl  { display: inline-block; width: 12ch; color: var(--muted); }
+  @media (max-width: 520px) {
+    .lbl { display: block; width: auto; }
+    body { font-size: 13.5px; }
+  }
+  a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--rule); }
+  a:hover { border-bottom-color: var(--text); }
+  .line.hidden a { pointer-events: none; }
+
+  .hint {
+    margin: 0 0 30px; font-size: 10px; letter-spacing: .13em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  /* Keycap, so ⌥ reads as something you press. */
+  .hint kbd {
+    display: inline-block;
+    font: inherit; font-size: 10px; line-height: 1;
+    letter-spacing: 0;
+    padding: 3px 5px 2px;
+    margin: 0 1px;
+    color: var(--soft);
+    background: var(--seg-bg);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    box-shadow: 0 1px 0 var(--rule);
+    transform: translateY(-1px);
+  }
+  /* Swap the instructions by input type: pointer devices hover, touch taps. */
+  .touch-only { display: none; }
+  @media (hover: none), (pointer: coarse) {
+    .hover-only { display: none; }
+    .touch-only { display: inline; }
+  }
+  .linkish {
+    appearance: none; background: none; border: 0; padding: 0;
+    font: inherit; letter-spacing: inherit; text-transform: inherit;
+    color: var(--soft); cursor: pointer;
+    border-bottom: 1px solid var(--rule);
+  }
+  .linkish:hover { color: var(--text); border-bottom-color: var(--text); }
+  .foot {
+    margin-top: 40px;
+    font-size: 10px; letter-spacing: .13em;
+    text-transform: uppercase; color: var(--muted);
+  }
+
+  /* Segmented appearance control, aligned to the text column's right margin. */
+  .seg {
+    /* `relative` is load-bearing: the thumb is absolutely positioned and needs
+       .seg as its containing block. `margin-left:auto` pushes it to the right
+       of the row. */
+    position: relative; margin-left: auto; z-index: 5;
+    display: inline-flex; padding: 3px;
+    background: var(--seg-bg);
+    border: 1px solid var(--rule);
+    border-radius: 9px;
+  }
+  .seg-thumb {
+    position: absolute; top: 3px; bottom: 3px; left: 3px;
+    width: calc((100% - 6px) / 3);
+    background: var(--seg-thumb);
+    border-radius: 6px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .18);
+    transition: transform .3s cubic-bezier(.4, 0, .2, 1), background .2s;
+  }
+  .seg[data-i="1"] .seg-thumb { transform: translateX(100%); }
+  .seg[data-i="2"] .seg-thumb { transform: translateX(200%); }
+  .seg-btn {
+    position: relative; z-index: 1;
+    flex: 1 0 auto; min-width: 58px;
+    appearance: none; background: none; border: 0; cursor: pointer;
+    font: inherit; font-size: 9.5px; line-height: 1;
+    letter-spacing: .12em; text-transform: uppercase;
+    padding: 7px 4px;
+    color: var(--muted);
+    transition: color .2s;
+  }
+  .seg-btn:hover { color: var(--soft); }
+  .seg-btn[aria-checked="true"] { color: var(--text); }
+  .seg-btn:focus-visible { outline: 1px solid var(--text); outline-offset: 2px; border-radius: 6px; }
+  @media (prefers-reduced-motion: reduce) {
+    .seg-thumb { transition: none; }
+  }
+  /* Phone: the name is too wide to share its line, so the control drops into
+     normal flow — which, given its place in the markup, lands it just under
+     the role line. Must stay `relative`, never `static`: the thumb is
+     absolutely positioned and needs .seg as its containing block, or it
+     resolves against .sheet and stretches across the whole page. */
+  @media (max-width: 560px) {
+    /* display:contents dissolves the wrapper so the name and the control
+       become siblings of the role line, and `order` can place the control
+       below it. */
+    .namerow { display: contents; }
+    h1       { order: 1; }
+    .kicker  { order: 2; }
+    .seg     { order: 3; }
+    .hint    { order: 4; }
+    .wrap    { order: 5; }
+    .seg {
+      position: relative;
+      display: flex;
+      width: fit-content;
+      margin: 4px auto 26px 0;      /* left-aligned with the text column */
+    }
+  }
