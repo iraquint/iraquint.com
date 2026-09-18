@@ -8,16 +8,6 @@ export default function Bio() {
 
   return (
     <div className="sheet">
-      {/* The copy is hidden until the canvas paints. Without JS that never
-          happens, so put it back — the bio should still be readable. */}
-      <noscript>
-        <style
-          dangerouslySetInnerHTML={{
-            __html: "#doc .line { visibility: visible !important; }",
-          }}
-        />
-      </noscript>
-
       {/* Name and role sit outside #doc: they are never inked, and keeping them
           here lets the control fall between them and the body on mobile. */}
       <div className="namerow">

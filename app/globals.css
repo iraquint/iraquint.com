@@ -106,19 +106,6 @@
   #doc { position: relative; z-index: 1; }
 
   .line { min-height: 1.95em; white-space: pre-wrap; word-break: break-word; }
-  /* Redact in CSS until the canvas takes over. Hiding the copy outright would
-     be simpler, but nothing could then appear until JS had hydrated and drawn
-     a frame — the page would sit blank. This paints on the very first frame,
-     with no JS at all, so the redaction is there immediately and the canvas
-     just refines it into word-shaped bars.
-     Layout boxes are preserved either way, which the engine needs to measure
-     each word with Range.getClientRects(). */
-  #doc:not(.ink-ready) .line {
-    color: transparent;
-    background: var(--cover);
-    border-radius: 1px;
-  }
-  #doc:not(.ink-ready) .line a { color: transparent; border-bottom-color: transparent; }
   /* The footer easter egg is an inline .line, so keep it on the baseline. */
   .foot .line { min-height: 0; display: inline; }
   .gap  { height: 1.95em; }

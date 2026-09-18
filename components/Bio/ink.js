@@ -8,7 +8,6 @@
  */
 export default function mountInk() {
   let rafId = 0;
-  let ready = false;
   // Same clock as the rAF timestamp, so the intro delay can be measured in-loop.
   const t0 = performance.now();
 
@@ -21,7 +20,7 @@ export default function mountInk() {
   const HOLD    = 4000;   // ms legible after the pointer leaves
   const FADE    = 2000;   // ms for the redaction disc to swallow the line
   const RESET   = 240;    // ms to collapse a redaction when the pointer comes back
-  const INTRO   = 120;    // ms before the instruction un-redacts itself on load
+  const INTRO   = 450;    // ms before the instruction un-redacts itself on load
   const FEATHER = 0.74;   // inner fraction of a disc that is fully solid
   const MAXP    = 4000;
 
@@ -349,10 +348,6 @@ export default function mountInk() {
     if (dirty) { buildParticles(); dirty = false; }
     update(now, dt);
 
-    // Reveal the copy only once a cover exists to sit on top of it. The class
-    // and the canvas draw below land in the same turn, so the browser paints
-    // both together — no frame where the text is readable and bare.
-    if (!ready) { ready = true; doc.classList.add("ink-ready"); }
     paintProgress();
 
     ctx.save();
@@ -504,18 +499,9 @@ export default function mountInk() {
   resize();
   rafId = requestAnimationFrame(frame);
 
-  // The copy is hidden until the first frame paints a cover over it. If that
-  // frame never comes — a throttled background tab, a canvas failure — the bio
-  // would be invisible for good, so reveal it regardless after a moment.
-  const failsafe = setTimeout(() => {
-    if (!ready) { ready = true; doc.classList.add("ink-ready"); }
-  }, 400);
-
   return () => {
     cancelAnimationFrame(rafId);
-    clearTimeout(failsafe);
     ro.disconnect();
-    doc.classList.remove("ink-ready");   // re-hide if the engine remounts
     window.removeEventListener("keydown", onKeyDown);
     window.removeEventListener("keyup", onKeyUp);
     window.removeEventListener("blur", onBlur);
