@@ -21,7 +21,7 @@ export default function mountInk() {
   const HOLD    = 4000;   // ms legible after the pointer leaves
   const FADE    = 2000;   // ms for the redaction disc to swallow the line
   const RESET   = 240;    // ms to collapse a redaction when the pointer comes back
-  const INTRO   = 450;    // ms before the instruction un-redacts itself on load
+  const INTRO   = 120;    // ms before the instruction un-redacts itself on load
   const FEATHER = 0.74;   // inner fraction of a disc that is fully solid
   const MAXP    = 4000;
 
@@ -509,7 +509,7 @@ export default function mountInk() {
   // would be invisible for good, so reveal it regardless after a moment.
   const failsafe = setTimeout(() => {
     if (!ready) { ready = true; doc.classList.add("ink-ready"); }
-  }, 1200);
+  }, 400);
 
   return () => {
     cancelAnimationFrame(rafId);
