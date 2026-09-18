@@ -37,6 +37,17 @@ export default function mountFloater(el) {
   let last = 0;
   let flash = 0;
 
+  // Hover is measured against the cursor rather than listened for on the
+  // element: it is pointer-events:none so that it can never swallow a click,
+  // which also means it receives no mouse events of its own.
+  let mx = -1e5;
+  let my = -1e5;
+  const onMove = (e) => { mx = e.clientX; my = e.clientY; };
+  const onOut = (e) => { if (!e.relatedTarget) { mx = -1e5; my = -1e5; } };
+  window.addEventListener("mousemove", onMove, { passive: true });
+  window.addEventListener("mouseout", onOut, { passive: true });
+  window.addEventListener("blur", onOut, { passive: true });
+
   function corner() {
     el.classList.add("corner");
     clearTimeout(flash);
@@ -49,6 +60,16 @@ export default function mountFloater(el) {
     last = now;
 
     ({ maxX, maxY } = bounds());
+
+    // Catch it by hovering: it holds still, and keeps its heading for when
+    // the cursor leaves.
+    const held = Math.hypot(mx - (x + SIZE / 2), my - (y + SIZE / 2)) <= SIZE / 2;
+    el.classList.toggle("held", held);
+    if (held) {
+      el.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`;
+      return;
+    }
+
     x += vx * dt;
     y += vy * dt;
 
@@ -69,5 +90,8 @@ export default function mountFloater(el) {
   return () => {
     cancelAnimationFrame(raf);
     clearTimeout(flash);
+    window.removeEventListener("mousemove", onMove);
+    window.removeEventListener("mouseout", onOut);
+    window.removeEventListener("blur", onOut);
   };
 }

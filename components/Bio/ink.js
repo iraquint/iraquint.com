@@ -186,12 +186,12 @@ export default function mountInk() {
 
   /* ---------- sound ---------- */
 
-  // On by default, but off for anyone who has asked for reduced motion — that
-  // setting reads as "calm page", which covers noise. An explicit choice beats
-  // both and is remembered.
+  // Off until asked for. Sound nobody requested is the rudest thing a page can
+  // do, and the muted icon is its own invitation — a speaker with a cross is a
+  // clearer prompt than any amount of autoplay. An explicit choice is kept.
   const SOUND_KEY = "ideations.sound";
   const soundBtn = document.getElementById("sound");
-  let soundOn = !reduce;
+  let soundOn = false;
   try {
     const saved = localStorage.getItem(SOUND_KEY);
     if (saved !== null) soundOn = saved === "1";

@@ -35,8 +35,8 @@ export default function Bio() {
             className="sound"
             id="sound"
             type="button"
-            aria-pressed="true"
-            aria-label="Mute rainbow music"
+            aria-pressed="false"
+            aria-label="Unmute rainbow music"
             title="Sound"
           >
             <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true">
