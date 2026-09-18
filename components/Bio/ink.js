@@ -8,6 +8,8 @@
  */
 export default function mountInk() {
   let rafId = 0;
+  // Same clock as the rAF timestamp, so the intro delay can be measured in-loop.
+  const t0 = performance.now();
 
   const doc    = document.getElementById("doc");
   const canvas = document.getElementById("ink");
@@ -15,9 +17,10 @@ export default function mountInk() {
   const lines  = [...doc.querySelectorAll(".line")];
 
   const REVEAL  = 600;    // ms for the reveal disc to clear the whole line
-  const HOLD    = 5000;   // ms legible after the pointer leaves
-  const FADE    = 3000;   // ms for the redaction disc to swallow the line
+  const HOLD    = 4000;   // ms legible after the pointer leaves
+  const FADE    = 2000;   // ms for the redaction disc to swallow the line
   const RESET   = 240;    // ms to collapse a redaction when the pointer comes back
+  const INTRO   = 450;    // ms before the instruction un-redacts itself on load
   const FEATHER = 0.74;   // inner fraction of a disc that is fully solid
   const MAXP    = 4000;
 
@@ -33,7 +36,13 @@ export default function mountInk() {
   // the REDACTED disc while redacting. Both grow outward from the cursor.
   const st = new Map();
   for (const l of lines) {
-    st.set(l, { mode: reduce ? "shown" : "hidden", r: 0, maxR: 0, ox: 0, oy: 0, hold: 0, pt: null });
+    st.set(l, {
+      mode: reduce ? "shown" : "hidden",
+      r: 0, maxR: 0, ox: 0, oy: 0, hold: 0, pt: null,
+      // The instruction reveals itself on load and then stays put — it both
+      // delivers the instruction and demonstrates the mechanic it describes.
+      intro: l.classList.contains("intro")
+    });
   }
 
   /* ---------- geometry: one box per word ---------- */
@@ -82,6 +91,9 @@ export default function mountInk() {
         x1 = Math.max(x1, r.x + r.w); y1 = Math.max(y1, r.y + r.h);
       }
       e.bbox = { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
+      // Inked area, used to weight the progress bar so a long paragraph counts
+      // for more than a three-word row.
+      e.weight = e.rects.reduce((sum, r) => sum + r.w * r.h, 0);
 
       // Hover targets: one span per visual row, ending where the text ends.
       // Gaps between words on a row stay active; trailing whitespace does not.
@@ -146,12 +158,12 @@ export default function mountInk() {
   }
 
   function applyTheme(t) {
-    if (!THEMES.includes(t)) t = "dark";
+    if (!THEMES.includes(t)) t = "light";
     if (t === "light") delete document.documentElement.dataset.theme;
     else document.documentElement.dataset.theme = t;
     rainbow = t === "rainbow";
     // Light and dark are preferences worth remembering. Rainbow is a gag —
-    // never restore into it, so the page always reopens in dark.
+    // never restore into it, so the page always reopens in light.
     try {
       if (t === "rainbow") localStorage.removeItem(THEME_KEY);
       else localStorage.setItem(THEME_KEY, t);
@@ -166,10 +178,10 @@ export default function mountInk() {
   segBtns.forEach(b =>
     b.addEventListener("click", () => applyTheme(b.dataset.themeValue)));
 
-  // Dark is the default; another mode only if explicitly chosen before.
+  // Light is the default; another mode only if explicitly chosen before.
   let saved = null;
   try { saved = localStorage.getItem(THEME_KEY); } catch (e) {}
-  applyTheme(THEMES.includes(saved) ? saved : "dark");
+  applyTheme(THEMES.includes(saved) ? saved : "light");
 
   const HIT_X = 3;   // px of horizontal slack at the text edges
 
@@ -252,7 +264,13 @@ export default function mountInk() {
 
       switch (s.mode) {
         case "hidden":
-          if (hovered) { anchor(s, e, s.pt || mouse); s.mode = "revealing"; }
+          if (s.intro && now - t0 >= INTRO) {
+            // Sweep in from the left edge so it reads as text being uncovered.
+            anchor(s, e, { x: e.bbox.x, y: e.bbox.y + e.bbox.h / 2 });
+            s.mode = "revealing";
+          } else if (hovered) {
+            anchor(s, e, s.pt || mouse); s.mode = "revealing";
+          }
           break;
 
         case "revealing": {
@@ -263,6 +281,7 @@ export default function mountInk() {
         }
 
         case "shown":
+          if (s.intro) break;                 // the instruction never re-redacts
           if (hovered) s.hold = now + HOLD;
           if (now > s.hold) { anchor(s, e, s.pt); s.mode = "redacting"; }
           break;
@@ -284,6 +303,41 @@ export default function mountInk() {
     }
   }
 
+  /* ---------- progress ---------- */
+
+  const rule = doc.querySelector(".rule");
+  let lastP = -1;
+
+  // How much of the page has been uncovered, 0..1, weighted by inked area.
+  // The instruction is excluded — it reveals itself, so counting it would
+  // start the bar part-full. The footer secret is included, so reaching 100%
+  // means you found it.
+  function progress() {
+    let done = 0, total = 0;
+    for (const line of lines) {
+      const s = st.get(line), e = byLine.get(line);
+      if (!e || s.intro) continue;
+      const w = e.weight || 0;
+      if (!w) continue;
+      total += w;
+      let f = 0;
+      if (s.mode === "shown") f = 1;
+      else if (s.mode === "revealing") f = s.maxR ? s.r / s.maxR : 0;
+      else if (s.mode === "redacting") f = s.maxR ? 1 - s.r / s.maxR : 0;
+      done += w * f;
+    }
+    return total ? done / total : 0;
+  }
+
+  function paintProgress() {
+    if (!rule) return;
+    const p = progress();
+    if (Math.abs(p - lastP) < 0.002) return;   // skip no-op style writes
+    lastP = p;
+    rule.style.setProperty("--p", p.toFixed(3));
+    rule.dataset.full = p > 0.999 ? "1" : "0";
+  }
+
   /* ---------- render ---------- */
 
   function frame(now) {
@@ -293,6 +347,8 @@ export default function mountInk() {
 
     if (dirty) { buildParticles(); dirty = false; }
     update(now, dt);
+
+    paintProgress();
 
     ctx.save();
     ctx.setTransform(1, 0, 0, 1, 0, 0);

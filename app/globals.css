@@ -41,6 +41,11 @@
 
   /* Gold shimmer, scoped to the footer easter egg. Custom properties inherit,
      so the canvas picks these up per element without any special-casing. */
+  /* Bar gold — a vivid yellow, not the muted ochre the easter-egg text uses.
+     That text needs contrast to stay readable; a hairline just needs to sing. */
+  :root { --gold: #eab308; }
+  :root[data-theme="dark"], :root[data-theme="rainbow"] { --gold: #e2b855; }
+
   .gold {
     --cover: #efe2bd;
     --dust:  140, 104, 18;
@@ -79,7 +84,22 @@
     margin: 0;
   }
   .kicker { color: var(--soft); margin: 0 0 10px; }
-  .rule { height: 1px; background: var(--rule); margin: 30px 0; }
+  /* The divider doubles as a progress bar: it fills as more of the page is
+     uncovered, and turns gold once everything — the footer secret included —
+     has been read. --p is written by the ink engine each frame. */
+  .rule {
+    height: 1px; background: var(--rule); margin: 30px 0;
+    position: relative; overflow: hidden;
+  }
+  .rule::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: var(--soft);
+    transform: scaleX(var(--p, 0));
+    transform-origin: left center;
+    transition: background .6s ease;
+  }
+  .rule[data-full="1"]::after { background: var(--gold); }
 
   .wrap { position: relative; }
   #ink { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
@@ -99,9 +119,13 @@
   .line.hidden a { pointer-events: none; }
 
   .hint {
-    margin: 0 0 30px; font-size: 10px; letter-spacing: .13em;
-    text-transform: uppercase; color: var(--muted);
+    margin: 0 0 30px; font-size: 11px; letter-spacing: .13em;
+    text-transform: uppercase; color: var(--soft);
   }
+  /* The instruction is an inline .line so the canvas can ink it. No `display`
+     here: spans are inline already, and setting it would outrank the
+     .touch-only / .hover-only toggle and show both variants at once. */
+  .hint .line { min-height: 0; }
   /* Keycap, so ⌥ reads as something you press. */
   .hint kbd {
     display: inline-block;
@@ -131,7 +155,9 @@
   .linkish:hover { color: var(--text); border-bottom-color: var(--text); }
   .foot {
     margin-top: 40px;
-    font-size: 10px; letter-spacing: .13em;
+    /* Same size as the instruction line so the two bits of chrome match,
+       but kept --muted: the credit should sit behind the instruction. */
+    font-size: 11px; letter-spacing: .13em;
     text-transform: uppercase; color: var(--muted);
   }
 
@@ -185,8 +211,7 @@
     h1       { order: 1; }
     .kicker  { order: 2; }
     .seg     { order: 3; }
-    .hint    { order: 4; }
-    .wrap    { order: 5; }
+    .wrap    { order: 4; }   /* the hint now lives inside .wrap */
     .seg {
       position: relative;
       display: flex;
