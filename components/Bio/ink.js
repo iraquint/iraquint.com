@@ -458,27 +458,39 @@ export default function mountInk() {
   });
   doc.addEventListener("mouseleave", () => { hoverLine = null; });
 
-  // Touch has no hover, so a tap stands in for it: reveal from the tap point,
-  // then let the usual hold-and-redact cycle run. Links inside a hidden line
+  // Open a line as if the pointer had arrived on it: reveal from `pt`, then
+  // hand back to the usual hold-and-redact cycle. Used by taps and by the
+  // reveal-everything button, so both behave identically.
+  function open(line, pt) {
+    const s = st.get(line), e = byLine.get(line);
+    if (!e) return;
+    if (pt) s.pt = pt;
+    const now = performance.now();
+    if (s.mode === "hidden") {
+      anchor(s, e, s.pt || { x: e.bbox.x, y: e.bbox.y + e.bbox.h / 2 });
+      s.mode = "revealing";
+    } else if (s.mode === "redacting") {
+      s.r = 0; s.mode = "shown"; s.hold = now + HOLD;
+    } else if (s.mode === "shown") {
+      s.hold = now + HOLD;
+    }
+  }
+
+  // Touch has no hover, so a tap stands in for it. Links inside a hidden line
   // are pointer-events:none, so the first tap reveals and the second follows.
   doc.addEventListener("pointerdown", (e) => {
     const base = doc.getBoundingClientRect();
     const x = e.clientX - base.left, y = e.clientY - base.top;
     const line = hitTest(x, y);
-    if (!line) return;
-    const s = st.get(line), en = byLine.get(line);
-    if (!en) return;
-    s.pt = { x, y };
-    const now = performance.now();
-    if (s.mode === "hidden") { anchor(s, en, s.pt); s.mode = "revealing"; }
-    else if (s.mode === "redacting") { s.r = 0; s.mode = "shown"; s.hold = now + HOLD; }
-    else if (s.mode === "shown") { s.hold = now + HOLD; }
+    if (line) open(line, { x, y });
   });
 
+  // Touch equivalent of holding ⌥: opens every line at once, then lets the
+  // normal hold-and-redact timer take them back. Not a toggle — a second
+  // "hide everything" press would have to fight that timer, and did.
   const revealAllBtn = document.getElementById("revealAll");
   revealAllBtn.addEventListener("click", () => {
-    altHeld = !altHeld;                  // same flag the ⌥ key drives
-    revealAllBtn.textContent = altHeld ? "hide everything" : "reveal everything";
+    for (const line of lines) open(line, null);
   });
 
   // Named so they can be detached again — listeners on `doc` and its children
