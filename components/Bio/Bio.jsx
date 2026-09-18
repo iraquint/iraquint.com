@@ -12,17 +12,46 @@ export default function Bio() {
           here lets the control fall between them and the body on mobile. */}
       <div className="namerow">
         <h1>Ira Quint</h1>
-        <div className="seg" id="seg" role="radiogroup" aria-label="Appearance">
-          <span className="seg-thumb" aria-hidden="true" />
-          <button className="seg-btn" role="radio" aria-checked="true" data-theme-value="light">
-            Light
+        {/* Sound and theme travel together as one control cluster, so they
+            stay on a single row at every width. */}
+        <div className="controls">
+          {/* Only shown in rainbow — it is the only mode that makes a sound. */}
+          <button
+            className="sound"
+            id="sound"
+            type="button"
+            aria-pressed="true"
+            aria-label="Mute rainbow music"
+            title="Sound"
+          >
+            <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true">
+              <path d="M2.5 6h2.3L8.6 2.9v10.2L4.8 10H2.5z" fill="currentColor" />
+              <g className="wave" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round">
+                <path d="M11 5.9a3 3 0 0 1 0 4.2" />
+                <path d="M13.1 4.1a6 6 0 0 1 0 7.8" />
+              </g>
+              <path
+                className="mute"
+                d="M11.4 6.2l3.4 3.6M14.8 6.2l-3.4 3.6"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.3"
+                strokeLinecap="round"
+              />
+            </svg>
           </button>
-          <button className="seg-btn" role="radio" aria-checked="false" data-theme-value="dark">
-            Dark
-          </button>
-          <button className="seg-btn" role="radio" aria-checked="false" data-theme-value="rainbow">
-            Rainbow
-          </button>
+          <div className="seg" id="seg" role="radiogroup" aria-label="Appearance">
+            <span className="seg-thumb" aria-hidden="true" />
+            <button className="seg-btn" role="radio" aria-checked="true" data-theme-value="light">
+              Light
+            </button>
+            <button className="seg-btn" role="radio" aria-checked="false" data-theme-value="dark">
+              Dark
+            </button>
+            <button className="seg-btn" role="radio" aria-checked="false" data-theme-value="rainbow">
+              Rainbow
+            </button>
+          </div>
         </div>
       </div>
 

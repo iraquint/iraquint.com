@@ -6,6 +6,9 @@
  * disc that grows out of the pointer; after a hold it fills back in the same
  * way. Called once on mount; returns a teardown for React.
  */
+
+import { start as startMusic, stop as stopMusic } from "./music";
+
 export default function mountInk() {
   let rafId = 0;
   // Same clock as the rAF timestamp, so the intro delay can be measured in-loop.
@@ -25,6 +28,8 @@ export default function mountInk() {
   const MAXP    = 4000;
 
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // Touch pointers can't aim the way a mouse can, so hit targets are widened.
+  const coarse = window.matchMedia("(pointer: coarse)").matches;
 
   let rects = [], particles = [], dirty = true;
   let byLine = new Map();
@@ -112,8 +117,12 @@ export default function mountInk() {
       }
       // Give back the vertical inset the word boxes were trimmed by.
       for (const row of rows) {
-        const pad = (row.y1 - row.y0) * 0.33;
+        const pad = (row.y1 - row.y0) * (coarse ? 0.5 : 0.33);
         row.y0 -= pad; row.y1 += pad;
+        // Ending the row at the text edge makes hover feel precise, but it
+        // makes tapping a short line a game of skill. Fingers get the whole
+        // column width instead.
+        if (coarse) { row.x0 = 0; row.x1 = doc.clientWidth; }
       }
       e.rows = rows;
     }
@@ -175,8 +184,50 @@ export default function mountInk() {
       b.setAttribute("aria-checked", String(b.dataset.themeValue === t)));
   }
 
+  /* ---------- sound ---------- */
+
+  // On by default, but off for anyone who has asked for reduced motion — that
+  // setting reads as "calm page", which covers noise. An explicit choice beats
+  // both and is remembered.
+  const SOUND_KEY = "ideations.sound";
+  const soundBtn = document.getElementById("sound");
+  let soundOn = !reduce;
+  try {
+    const saved = localStorage.getItem(SOUND_KEY);
+    if (saved !== null) soundOn = saved === "1";
+  } catch (e) {}
+
+  // The icon itself is swapped in CSS off aria-pressed; only the label, which
+  // names the action rather than the state, is set here.
+  function paintSound() {
+    if (!soundBtn) return;
+    soundBtn.setAttribute("aria-pressed", String(soundOn));
+    soundBtn.setAttribute("aria-label",
+      soundOn ? "Mute rainbow music" : "Unmute rainbow music");
+  }
+  paintSound();
+
+  // The music belongs to rainbow: it runs while that mode is on and the sound
+  // is up, and stops the moment either stops being true.
+  function syncMusic() {
+    if (rainbow && soundOn) startMusic();
+    else stopMusic();
+  }
+
+  if (soundBtn) {
+    soundBtn.addEventListener("click", () => {
+      soundOn = !soundOn;
+      try { localStorage.setItem(SOUND_KEY, soundOn ? "1" : "0"); } catch (e) {}
+      paintSound();
+      syncMusic();
+    });
+  }
+
   segBtns.forEach(b =>
-    b.addEventListener("click", () => applyTheme(b.dataset.themeValue)));
+    b.addEventListener("click", () => {
+      applyTheme(b.dataset.themeValue);
+      syncMusic();
+    }));
 
   // Light is the default; another mode only if explicitly chosen before.
   let saved = null;
@@ -513,6 +564,7 @@ export default function mountInk() {
 
   return () => {
     cancelAnimationFrame(rafId);
+    stopMusic();            // never outlive the page that started it
     ro.disconnect();
     window.removeEventListener("keydown", onKeyDown);
     window.removeEventListener("keyup", onKeyUp);

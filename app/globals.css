@@ -192,6 +192,29 @@
     color: var(--muted);
     transition: color .2s;
   }
+  /* Sound and theme as one cluster, pushed to the right of the name. */
+  .controls {
+    margin-left: auto;
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  /* Sound control. Hidden outside rainbow, since that is the only mode that
+     makes any noise — a sound button on a silent page just puzzles people. */
+  .sound {
+    display: none;
+    appearance: none; background: none; border: 0; cursor: pointer;
+    padding: 4px; line-height: 0;
+    color: var(--muted);
+    transition: color .2s;
+  }
+  :root[data-theme="rainbow"] .sound { display: inline-flex; }
+  .sound:hover { color: var(--soft); }
+  .sound[aria-pressed="true"] { color: var(--text); }
+  .sound:focus-visible { outline: 1px solid var(--text); outline-offset: 2px; border-radius: 3px; }
+  /* One icon, two states: CSS picks the waves or the cross. */
+  .sound[aria-pressed="true"] .mute { display: none; }
+  .sound[aria-pressed="false"] .wave { display: none; }
+
   .seg-btn:hover { color: var(--soft); }
   .seg-btn[aria-checked="true"] { color: var(--text); }
   .seg-btn:focus-visible { outline: 1px solid var(--text); outline-offset: 2px; border-radius: 6px; }
@@ -210,12 +233,20 @@
     .namerow { display: contents; }
     h1       { order: 1; }
     .kicker  { order: 2; }
-    .seg     { order: 3; }
-    .wrap    { order: 4; }   /* the hint now lives inside .wrap */
+    .controls { order: 3; }
+    .wrap     { order: 4; }   /* the hint now lives inside .wrap */
+    /* Reversed so the picker keeps the left margin and the sound icon sits
+       immediately to its right — the pair stays together rather than being
+       split across the column. */
+    .controls {
+      width: fit-content;
+      margin: 4px auto 26px 0;
+      flex-direction: row-reverse;
+    }
     .seg {
       position: relative;
       display: flex;
       width: fit-content;
-      margin: 4px auto 26px 0;      /* left-aligned with the text column */
+      margin: 0;
     }
   }
