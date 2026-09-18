@@ -1,0 +1,120 @@
+/**
+ * The DVD-logo bounce, with a face on it.
+ *
+ * Constant velocity, reversing the relevant component whenever it reaches a
+ * viewport edge. Hitting an exact corner — both axes flipping in the same
+ * frame — is the whole point of the genre, so it gets marked when it happens.
+ */
+
+const SIZE = 96;        // px, matches the CSS box
+const SPEED = 82;       // px per second
+const POP_MS = 420;     // click-to-pop duration
+const POP_SCALE = 0.38; // how far it swells at the peak
+
+export default function mountFloater(el) {
+  if (!el || typeof window === "undefined") return () => {};
+
+  // A thing ricocheting around the screen is precisely what this setting is
+  // asking not to see.
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    el.hidden = true;
+    return () => {};
+  }
+
+  const bounds = () => ({
+    maxX: Math.max(0, window.innerWidth - SIZE),
+    maxY: Math.max(0, window.innerHeight - SIZE),
+  });
+
+  let { maxX, maxY } = bounds();
+  let x = Math.random() * maxX;
+  let y = Math.random() * maxY;
+
+  // Keep the angle off the axes, or it slides along an edge and never bounces.
+  const rad = ((25 + Math.random() * 40) * Math.PI) / 180;
+  let vx = Math.cos(rad) * SPEED * (Math.random() < 0.5 ? -1 : 1);
+  let vy = Math.sin(rad) * SPEED * (Math.random() < 0.5 ? -1 : 1);
+
+  let raf = 0;
+  let last = 0;
+  let flash = 0;
+
+  // Hover is measured against the cursor rather than listened for on the
+  // element: it is pointer-events:none so that it can never swallow a click,
+  // which also means it receives no mouse events of its own.
+  let mx = -1e5;
+  let my = -1e5;
+  const onMove = (e) => { mx = e.clientX; my = e.clientY; };
+  const onOut = (e) => { if (!e.relatedTarget) { mx = -1e5; my = -1e5; } };
+  window.addEventListener("mousemove", onMove, { passive: true });
+  window.addEventListener("mouseout", onOut, { passive: true });
+  window.addEventListener("blur", onOut, { passive: true });
+
+  // Clicks are matched against the circle for the same reason as hover. The
+  // click still reaches whatever is underneath, so this only ever adds a pop.
+  let popAt = 0;
+  const onClick = (e) => {
+    const inside =
+      Math.hypot(e.clientX - (x + SIZE / 2), e.clientY - (y + SIZE / 2)) <= SIZE / 2;
+    if (!inside) return;
+    popAt = performance.now();
+    el.classList.add("pop");     // set here, not in the loop, so the ring
+  };                             // responds on the press rather than a frame later
+  window.addEventListener("click", onClick, { passive: true });
+
+  function corner() {
+    el.classList.add("corner");
+    clearTimeout(flash);
+    flash = setTimeout(() => el.classList.remove("corner"), 1100);
+  }
+
+  function frame(now) {
+    raf = requestAnimationFrame(frame);
+    const dt = last ? Math.min(0.05, (now - last) / 1000) : 0.016;
+    last = now;
+
+    ({ maxX, maxY } = bounds());
+
+    // Catch it by hovering: it holds still, and keeps its heading for when
+    // the cursor leaves.
+    const held = Math.hypot(mx - (x + SIZE / 2), my - (y + SIZE / 2)) <= SIZE / 2;
+    el.classList.toggle("held", held);
+
+    if (!held) {
+      x += vx * dt;
+      y += vy * dt;
+
+      let hitX = false;
+      let hitY = false;
+      if (x <= 0)        { x = 0;    vx = Math.abs(vx);  hitX = true; }
+      else if (x >= maxX){ x = maxX; vx = -Math.abs(vx); hitX = true; }
+      if (y <= 0)        { y = 0;    vy = Math.abs(vy);  hitY = true; }
+      else if (y >= maxY){ y = maxY; vy = -Math.abs(vy); hitY = true; }
+
+      if (hitX && hitY) corner();   // the one everyone waits for
+    }
+
+    // The pop lives in this transform rather than a CSS animation, because
+    // the loop rewrites transform every frame and would overwrite one.
+    let scale = 1;
+    if (popAt) {
+      const k = (now - popAt) / POP_MS;
+      if (k >= 1) { popAt = 0; el.classList.remove("pop"); }
+      else scale = 1 + POP_SCALE * Math.sin(Math.PI * k);   // up and back
+    }
+
+    el.style.transform =
+      `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) scale(${scale.toFixed(3)})`;
+  }
+
+  raf = requestAnimationFrame(frame);
+
+  return () => {
+    cancelAnimationFrame(raf);
+    clearTimeout(flash);
+    window.removeEventListener("mousemove", onMove);
+    window.removeEventListener("mouseout", onOut);
+    window.removeEventListener("blur", onOut);
+    window.removeEventListener("click", onClick);
+  };
+}

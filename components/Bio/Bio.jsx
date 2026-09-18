@@ -1,13 +1,28 @@
 "use client";
 
 import { useEffect } from "react";
+import Image from "next/image";
 import mountInk from "./ink";
+import mountFloater from "./floater";
 
 export default function Bio() {
-  useEffect(() => mountInk(), []);
+  useEffect(() => {
+    const stopInk = mountInk();
+    const stopFloater = mountFloater(document.getElementById("floater"));
+    return () => {
+      if (stopInk) stopInk();
+      if (stopFloater) stopFloater();
+    };
+  }, []);
 
   return (
     <div className="sheet">
+      {/* Bounces off the viewport edges, rainbow only. Decorative, and never
+          in the way of a click. */}
+      <div className="floater" id="floater" aria-hidden="true">
+        <Image src="/assets/me.jpg" alt="" width={96} height={96} />
+      </div>
+
       {/* Name and role sit outside #doc: they are never inked, and keeping them
           here lets the control fall between them and the body on mobile. */}
       <div className="namerow">
@@ -20,8 +35,8 @@ export default function Bio() {
             className="sound"
             id="sound"
             type="button"
-            aria-pressed="true"
-            aria-label="Mute rainbow music"
+            aria-pressed="false"
+            aria-label="Unmute rainbow music"
             title="Sound"
           >
             <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true">
