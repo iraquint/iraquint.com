@@ -211,6 +211,8 @@
   .floater img { width: 100%; height: 100%; object-fit: cover; display: block; }
   /* Held still under the cursor. */
   .floater.held { opacity: 1; box-shadow: 0 0 0 3px var(--soft); }
+  /* Mid-pop, from a click. The swell itself is applied in the transform. */
+  .floater.pop { opacity: 1; box-shadow: 0 0 0 3px var(--text); }
   /* The corner hit, which is the entire point of the genre. */
   .floater.corner { box-shadow: 0 0 0 3px var(--gold), 0 0 26px var(--gold); }
 

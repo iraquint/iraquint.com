@@ -6,8 +6,10 @@
  * frame — is the whole point of the genre, so it gets marked when it happens.
  */
 
-const SIZE = 96;    // px, matches the CSS box
-const SPEED = 82;   // px per second
+const SIZE = 96;        // px, matches the CSS box
+const SPEED = 82;       // px per second
+const POP_MS = 420;     // click-to-pop duration
+const POP_SCALE = 0.38; // how far it swells at the peak
 
 export default function mountFloater(el) {
   if (!el || typeof window === "undefined") return () => {};
@@ -48,6 +50,18 @@ export default function mountFloater(el) {
   window.addEventListener("mouseout", onOut, { passive: true });
   window.addEventListener("blur", onOut, { passive: true });
 
+  // Clicks are matched against the circle for the same reason as hover. The
+  // click still reaches whatever is underneath, so this only ever adds a pop.
+  let popAt = 0;
+  const onClick = (e) => {
+    const inside =
+      Math.hypot(e.clientX - (x + SIZE / 2), e.clientY - (y + SIZE / 2)) <= SIZE / 2;
+    if (!inside) return;
+    popAt = performance.now();
+    el.classList.add("pop");     // set here, not in the loop, so the ring
+  };                             // responds on the press rather than a frame later
+  window.addEventListener("click", onClick, { passive: true });
+
   function corner() {
     el.classList.add("corner");
     clearTimeout(flash);
@@ -65,24 +79,32 @@ export default function mountFloater(el) {
     // the cursor leaves.
     const held = Math.hypot(mx - (x + SIZE / 2), my - (y + SIZE / 2)) <= SIZE / 2;
     el.classList.toggle("held", held);
-    if (held) {
-      el.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`;
-      return;
+
+    if (!held) {
+      x += vx * dt;
+      y += vy * dt;
+
+      let hitX = false;
+      let hitY = false;
+      if (x <= 0)        { x = 0;    vx = Math.abs(vx);  hitX = true; }
+      else if (x >= maxX){ x = maxX; vx = -Math.abs(vx); hitX = true; }
+      if (y <= 0)        { y = 0;    vy = Math.abs(vy);  hitY = true; }
+      else if (y >= maxY){ y = maxY; vy = -Math.abs(vy); hitY = true; }
+
+      if (hitX && hitY) corner();   // the one everyone waits for
     }
 
-    x += vx * dt;
-    y += vy * dt;
+    // The pop lives in this transform rather than a CSS animation, because
+    // the loop rewrites transform every frame and would overwrite one.
+    let scale = 1;
+    if (popAt) {
+      const k = (now - popAt) / POP_MS;
+      if (k >= 1) { popAt = 0; el.classList.remove("pop"); }
+      else scale = 1 + POP_SCALE * Math.sin(Math.PI * k);   // up and back
+    }
 
-    let hitX = false;
-    let hitY = false;
-    if (x <= 0)        { x = 0;    vx = Math.abs(vx);  hitX = true; }
-    else if (x >= maxX){ x = maxX; vx = -Math.abs(vx); hitX = true; }
-    if (y <= 0)        { y = 0;    vy = Math.abs(vy);  hitY = true; }
-    else if (y >= maxY){ y = maxY; vy = -Math.abs(vy); hitY = true; }
-
-    if (hitX && hitY) corner();   // the one everyone waits for
-
-    el.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`;
+    el.style.transform =
+      `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) scale(${scale.toFixed(3)})`;
   }
 
   raf = requestAnimationFrame(frame);
@@ -93,5 +115,6 @@ export default function mountFloater(el) {
     window.removeEventListener("mousemove", onMove);
     window.removeEventListener("mouseout", onOut);
     window.removeEventListener("blur", onOut);
+    window.removeEventListener("click", onClick);
   };
 }
