@@ -92,6 +92,9 @@ export default function mountInk() {
         x1 = Math.max(x1, r.x + r.w); y1 = Math.max(y1, r.y + r.h);
       }
       e.bbox = { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
+      // Inked area, used to weight the progress bar so a long paragraph counts
+      // for more than a three-word row.
+      e.weight = e.rects.reduce((sum, r) => sum + r.w * r.h, 0);
 
       // Hover targets: one span per visual row, ending where the text ends.
       // Gaps between words on a row stay active; trailing whitespace does not.
@@ -301,6 +304,41 @@ export default function mountInk() {
     }
   }
 
+  /* ---------- progress ---------- */
+
+  const rule = doc.querySelector(".rule");
+  let lastP = -1;
+
+  // How much of the page has been uncovered, 0..1, weighted by inked area.
+  // The instruction is excluded — it reveals itself, so counting it would
+  // start the bar part-full. The footer secret is included, so reaching 100%
+  // means you found it.
+  function progress() {
+    let done = 0, total = 0;
+    for (const line of lines) {
+      const s = st.get(line), e = byLine.get(line);
+      if (!e || s.intro) continue;
+      const w = e.weight || 0;
+      if (!w) continue;
+      total += w;
+      let f = 0;
+      if (s.mode === "shown") f = 1;
+      else if (s.mode === "revealing") f = s.maxR ? s.r / s.maxR : 0;
+      else if (s.mode === "redacting") f = s.maxR ? 1 - s.r / s.maxR : 0;
+      done += w * f;
+    }
+    return total ? done / total : 0;
+  }
+
+  function paintProgress() {
+    if (!rule) return;
+    const p = progress();
+    if (Math.abs(p - lastP) < 0.002) return;   // skip no-op style writes
+    lastP = p;
+    rule.style.setProperty("--p", p.toFixed(3));
+    rule.dataset.full = p > 0.999 ? "1" : "0";
+  }
+
   /* ---------- render ---------- */
 
   function frame(now) {
@@ -315,6 +353,7 @@ export default function mountInk() {
     // and the canvas draw below land in the same turn, so the browser paints
     // both together — no frame where the text is readable and bare.
     if (!ready) { ready = true; doc.classList.add("ink-ready"); }
+    paintProgress();
 
     ctx.save();
     ctx.setTransform(1, 0, 0, 1, 0, 0);
