@@ -235,13 +235,13 @@
     .kicker  { order: 2; }
     .controls { order: 3; }
     .wrap     { order: 4; }   /* the hint now lives inside .wrap */
-    /* Full width and reversed, so the picker keeps the left margin and the
-       sound control moves out to the right edge. */
+    /* Reversed so the picker keeps the left margin and the sound icon sits
+       immediately to its right — the pair stays together rather than being
+       split across the column. */
     .controls {
-      width: 100%;
-      margin: 4px 0 26px;
+      width: fit-content;
+      margin: 4px auto 26px 0;
       flex-direction: row-reverse;
-      justify-content: space-between;
     }
     .seg {
       position: relative;
