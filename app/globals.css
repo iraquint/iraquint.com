@@ -140,7 +140,9 @@
   .linkish:hover { color: var(--text); border-bottom-color: var(--text); }
   .foot {
     margin-top: 40px;
-    font-size: 10px; letter-spacing: .13em;
+    /* Same size as the instruction line so the two bits of chrome match,
+       but kept --muted: the credit should sit behind the instruction. */
+    font-size: 11px; letter-spacing: .13em;
     text-transform: uppercase; color: var(--muted);
   }
 
