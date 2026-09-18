@@ -28,21 +28,17 @@ export default function Bio() {
 
       <p className="kicker">Product engineer · Washington, D.C.</p>
 
-      <div className="hint">
-        <span className="hover-only">
-          mouse over a line to read it · hold <kbd>⌥</kbd> to reveal everything
-        </span>
-        <span className="touch-only">
-          tap a line to read it ·{" "}
-          <button className="linkish" id="revealAll">
-            reveal everything
-          </button>
-        </span>
-      </div>
-
       <div className="wrap">
         <canvas id="ink" />
         <div id="doc">
+          {/* Inside #doc so the canvas can reach it. `intro` makes it un-redact
+              itself shortly after load and then stay legible — the instruction
+              demonstrates the mechanic it describes. */}
+          <div className="hint">
+            <span className="hover-only line intro">mouse over a line to read it · hold <kbd>⌥</kbd> to reveal everything</span>
+            <span className="touch-only line intro">tap a line to read it · <button className="linkish" id="revealAll">reveal everything</button></span>
+          </div>
+
           {/* Kept on one line: .line is white-space:pre-wrap, so JSX line breaks
               here would become literal spaces in the rendered text. */}
           <div className="line">Full-stack product engineer with almost 8 years spanning product, UX, and engineering, from bootstrapped startups to Series C. I turn ambiguous customer problems into intuitive software.</div>

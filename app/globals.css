@@ -99,9 +99,13 @@
   .line.hidden a { pointer-events: none; }
 
   .hint {
-    margin: 0 0 30px; font-size: 10px; letter-spacing: .13em;
-    text-transform: uppercase; color: var(--muted);
+    margin: 0 0 30px; font-size: 11px; letter-spacing: .13em;
+    text-transform: uppercase; color: var(--soft);
   }
+  /* The instruction is an inline .line so the canvas can ink it. No `display`
+     here: spans are inline already, and setting it would outrank the
+     .touch-only / .hover-only toggle and show both variants at once. */
+  .hint .line { min-height: 0; }
   /* Keycap, so ⌥ reads as something you press. */
   .hint kbd {
     display: inline-block;
@@ -185,8 +189,7 @@
     h1       { order: 1; }
     .kicker  { order: 2; }
     .seg     { order: 3; }
-    .hint    { order: 4; }
-    .wrap    { order: 5; }
+    .wrap    { order: 4; }   /* the hint now lives inside .wrap */
     .seg {
       position: relative;
       display: flex;

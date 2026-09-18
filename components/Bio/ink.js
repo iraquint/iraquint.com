@@ -8,6 +8,8 @@
  */
 export default function mountInk() {
   let rafId = 0;
+  // Same clock as the rAF timestamp, so the intro delay can be measured in-loop.
+  const t0 = performance.now();
 
   const doc    = document.getElementById("doc");
   const canvas = document.getElementById("ink");
@@ -18,6 +20,7 @@ export default function mountInk() {
   const HOLD    = 5000;   // ms legible after the pointer leaves
   const FADE    = 3000;   // ms for the redaction disc to swallow the line
   const RESET   = 240;    // ms to collapse a redaction when the pointer comes back
+  const INTRO   = 450;    // ms before the instruction un-redacts itself on load
   const FEATHER = 0.74;   // inner fraction of a disc that is fully solid
   const MAXP    = 4000;
 
@@ -33,7 +36,13 @@ export default function mountInk() {
   // the REDACTED disc while redacting. Both grow outward from the cursor.
   const st = new Map();
   for (const l of lines) {
-    st.set(l, { mode: reduce ? "shown" : "hidden", r: 0, maxR: 0, ox: 0, oy: 0, hold: 0, pt: null });
+    st.set(l, {
+      mode: reduce ? "shown" : "hidden",
+      r: 0, maxR: 0, ox: 0, oy: 0, hold: 0, pt: null,
+      // The instruction reveals itself on load and then stays put — it both
+      // delivers the instruction and demonstrates the mechanic it describes.
+      intro: l.classList.contains("intro")
+    });
   }
 
   /* ---------- geometry: one box per word ---------- */
@@ -252,7 +261,13 @@ export default function mountInk() {
 
       switch (s.mode) {
         case "hidden":
-          if (hovered) { anchor(s, e, s.pt || mouse); s.mode = "revealing"; }
+          if (s.intro && now - t0 >= INTRO) {
+            // Sweep in from the left edge so it reads as text being uncovered.
+            anchor(s, e, { x: e.bbox.x, y: e.bbox.y + e.bbox.h / 2 });
+            s.mode = "revealing";
+          } else if (hovered) {
+            anchor(s, e, s.pt || mouse); s.mode = "revealing";
+          }
           break;
 
         case "revealing": {
@@ -263,6 +278,7 @@ export default function mountInk() {
         }
 
         case "shown":
+          if (s.intro) break;                 // the instruction never re-redacts
           if (hovered) s.hold = now + HOLD;
           if (now > s.hold) { anchor(s, e, s.pt); s.mode = "redacting"; }
           break;
