@@ -7,10 +7,11 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
-  // data-theme is set here so the first paint is already dark, no white flash.
-  // The appearance control overwrites it on mount if a preference was saved.
+  // No data-theme: light is the base palette on :root, so the first paint is
+  // already light. The appearance control sets the attribute on mount if a
+  // preference was saved.
   return (
-    <html lang="en" data-theme="dark">
+    <html lang="en">
       <body>{children}</body>
     </html>
   );

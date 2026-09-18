@@ -14,10 +14,10 @@ export default function Bio() {
         <h1>Ira Quint</h1>
         <div className="seg" id="seg" role="radiogroup" aria-label="Appearance">
           <span className="seg-thumb" aria-hidden="true" />
-          <button className="seg-btn" role="radio" aria-checked="false" data-theme-value="light">
+          <button className="seg-btn" role="radio" aria-checked="true" data-theme-value="light">
             Light
           </button>
-          <button className="seg-btn" role="radio" aria-checked="true" data-theme-value="dark">
+          <button className="seg-btn" role="radio" aria-checked="false" data-theme-value="dark">
             Dark
           </button>
           <button className="seg-btn" role="radio" aria-checked="false" data-theme-value="rainbow">

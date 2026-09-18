@@ -146,12 +146,12 @@ export default function mountInk() {
   }
 
   function applyTheme(t) {
-    if (!THEMES.includes(t)) t = "dark";
+    if (!THEMES.includes(t)) t = "light";
     if (t === "light") delete document.documentElement.dataset.theme;
     else document.documentElement.dataset.theme = t;
     rainbow = t === "rainbow";
     // Light and dark are preferences worth remembering. Rainbow is a gag —
-    // never restore into it, so the page always reopens in dark.
+    // never restore into it, so the page always reopens in light.
     try {
       if (t === "rainbow") localStorage.removeItem(THEME_KEY);
       else localStorage.setItem(THEME_KEY, t);
@@ -166,10 +166,10 @@ export default function mountInk() {
   segBtns.forEach(b =>
     b.addEventListener("click", () => applyTheme(b.dataset.themeValue)));
 
-  // Dark is the default; another mode only if explicitly chosen before.
+  // Light is the default; another mode only if explicitly chosen before.
   let saved = null;
   try { saved = localStorage.getItem(THEME_KEY); } catch (e) {}
-  applyTheme(THEMES.includes(saved) ? saved : "dark");
+  applyTheme(THEMES.includes(saved) ? saved : "light");
 
   const HIT_X = 3;   // px of horizontal slack at the text edges
 
