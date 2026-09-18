@@ -7,7 +7,7 @@
  * way. Called once on mount; returns a teardown for React.
  */
 
-import chime from "./chime";
+import { start as startMusic, stop as stopMusic } from "./music";
 
 export default function mountInk() {
   let rafId = 0;
@@ -198,22 +198,26 @@ export default function mountInk() {
   }
   paintSound();
 
+  // The music belongs to rainbow: it runs while that mode is on and the sound
+  // is up, and stops the moment either stops being true.
+  function syncMusic() {
+    if (rainbow && soundOn) startMusic();
+    else stopMusic();
+  }
+
   if (soundBtn) {
     soundBtn.addEventListener("click", () => {
       soundOn = !soundOn;
       try { localStorage.setItem(SOUND_KEY, soundOn ? "1" : "0"); } catch (e) {}
       paintSound();
-      if (soundOn) chime();          // confirm the choice by playing it
+      syncMusic();
     });
   }
 
   segBtns.forEach(b =>
     b.addEventListener("click", () => {
-      const was = rainbow;
       applyTheme(b.dataset.themeValue);
-      // Only on the way in, and only from a real press — never on load, and
-      // never when leaving rainbow for something sober.
-      if (!was && rainbow && soundOn) chime();
+      syncMusic();
     }));
 
   // Light is the default; another mode only if explicitly chosen before.
@@ -551,6 +555,7 @@ export default function mountInk() {
 
   return () => {
     cancelAnimationFrame(rafId);
+    stopMusic();            // never outlive the page that started it
     ro.disconnect();
     window.removeEventListener("keydown", onKeyDown);
     window.removeEventListener("keyup", onKeyUp);
