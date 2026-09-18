@@ -74,6 +74,7 @@
   .sheet {
     width: 100%; max-width: 660px; position: relative;
     display: flex; flex-direction: column;
+    z-index: 1;            /* keeps the bouncing portrait behind the text */
   }
   /* Name and control share a row; flex handles the vertical alignment. */
   .namerow { display: flex; align-items: center; }
@@ -192,6 +193,25 @@
     color: var(--muted);
     transition: color .2s;
   }
+  /* Bouncing portrait — rainbow only, and never interactive. Fixed to the
+     viewport because the edges it ricochets off are the window's, not the
+     page's. Sits behind the sheet so it drifts past the text, not over it. */
+  .floater {
+    display: none;
+    position: fixed; top: 0; left: 0; z-index: 0;
+    width: 96px; height: 96px;
+    border-radius: 50%; overflow: hidden;
+    pointer-events: none;
+    opacity: .85;
+    will-change: transform;
+    box-shadow: 0 0 0 2px var(--rule);
+    transition: box-shadow .35s ease;
+  }
+  :root[data-theme="rainbow"] .floater { display: block; }
+  .floater img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  /* The corner hit, which is the entire point of the genre. */
+  .floater.corner { box-shadow: 0 0 0 3px var(--gold), 0 0 26px var(--gold); }
+
   /* Sound and theme as one cluster, pushed to the right of the name. */
   .controls {
     margin-left: auto;
