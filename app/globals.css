@@ -192,22 +192,28 @@
     color: var(--muted);
     transition: color .2s;
   }
+  /* Sound and theme as one cluster, pushed to the right of the name. */
+  .controls {
+    margin-left: auto;
+    display: flex; align-items: center; gap: 10px;
+  }
+
   /* Sound control. Hidden outside rainbow, since that is the only mode that
-     makes any noise — a "sound" button on a silent page just puzzles people. */
+     makes any noise — a sound button on a silent page just puzzles people. */
   .sound {
     display: none;
-    margin-left: 10px;
     appearance: none; background: none; border: 0; cursor: pointer;
-    font: inherit; font-size: 9.5px; line-height: 1;
-    letter-spacing: .12em; text-transform: uppercase;
-    padding: 7px 2px;
+    padding: 4px; line-height: 0;
     color: var(--muted);
     transition: color .2s;
   }
-  :root[data-theme="rainbow"] .sound { display: inline-block; }
+  :root[data-theme="rainbow"] .sound { display: inline-flex; }
   .sound:hover { color: var(--soft); }
   .sound[aria-pressed="true"] { color: var(--text); }
-  .sound:focus-visible { outline: 1px solid var(--text); outline-offset: 2px; }
+  .sound:focus-visible { outline: 1px solid var(--text); outline-offset: 2px; border-radius: 3px; }
+  /* One icon, two states: CSS picks the waves or the cross. */
+  .sound[aria-pressed="true"] .mute { display: none; }
+  .sound[aria-pressed="false"] .wave { display: none; }
 
   .seg-btn:hover { color: var(--soft); }
   .seg-btn[aria-checked="true"] { color: var(--text); }
@@ -227,13 +233,20 @@
     .namerow { display: contents; }
     h1       { order: 1; }
     .kicker  { order: 2; }
-    .seg     { order: 3; }
-    .sound   { order: 4; margin: 0 0 22px; }
-    .wrap    { order: 5; }   /* the hint now lives inside .wrap */
+    .controls { order: 3; }
+    .wrap     { order: 4; }   /* the hint now lives inside .wrap */
+    /* Full width and reversed, so the picker keeps the left margin and the
+       sound control moves out to the right edge. */
+    .controls {
+      width: 100%;
+      margin: 4px 0 26px;
+      flex-direction: row-reverse;
+      justify-content: space-between;
+    }
     .seg {
       position: relative;
       display: flex;
       width: fit-content;
-      margin: 4px auto 26px 0;      /* left-aligned with the text column */
+      margin: 0;
     }
   }
