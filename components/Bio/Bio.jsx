@@ -24,6 +24,10 @@ export default function Bio() {
             Rainbow
           </button>
         </div>
+        {/* Only shown in rainbow — it is the only mode that makes a sound. */}
+        <button className="sound" id="sound" type="button" aria-pressed="true">
+          sound on
+        </button>
       </div>
 
       <p className="kicker">Product engineer · Washington, D.C.</p>

@@ -8,20 +8,13 @@
 
 const NOTES = [523.25, 659.25, 783.99, 1046.5, 1318.51, 1046.5]; // C E G C E C
 const STEP = 0.085;   // seconds per note
-const PEAK = 0.05;    // quiet — this is a surprise, not an announcement
-const ONCE_KEY = "ideations.chimed";
+const PEAK = 0.05;    // quiet — a flourish, not an announcement
 
+// Plays unconditionally. Whether it *should* play is the caller's call, so the
+// sound control has one obvious place to live rather than being second-guessed
+// from in here.
 export default function chime() {
   if (typeof window === "undefined") return;
-
-  // People who ask for less motion are not asking for surprise noise either.
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-  // A discovery, not a toy: it plays the first time and then stays quiet.
-  try {
-    if (sessionStorage.getItem(ONCE_KEY)) return;
-    sessionStorage.setItem(ONCE_KEY, "1");
-  } catch (e) { /* private mode — just let it play */ }
 
   const AC = window.AudioContext || window.webkitAudioContext;
   if (!AC) return;

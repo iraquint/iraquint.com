@@ -178,13 +178,42 @@ export default function mountInk() {
       b.setAttribute("aria-checked", String(b.dataset.themeValue === t)));
   }
 
+  /* ---------- sound ---------- */
+
+  // On by default, but off for anyone who has asked for reduced motion — that
+  // setting reads as "calm page", which covers noise. An explicit choice beats
+  // both and is remembered.
+  const SOUND_KEY = "ideations.sound";
+  const soundBtn = document.getElementById("sound");
+  let soundOn = !reduce;
+  try {
+    const saved = localStorage.getItem(SOUND_KEY);
+    if (saved !== null) soundOn = saved === "1";
+  } catch (e) {}
+
+  function paintSound() {
+    if (!soundBtn) return;
+    soundBtn.setAttribute("aria-pressed", String(soundOn));
+    soundBtn.textContent = soundOn ? "sound on" : "sound off";
+  }
+  paintSound();
+
+  if (soundBtn) {
+    soundBtn.addEventListener("click", () => {
+      soundOn = !soundOn;
+      try { localStorage.setItem(SOUND_KEY, soundOn ? "1" : "0"); } catch (e) {}
+      paintSound();
+      if (soundOn) chime();          // confirm the choice by playing it
+    });
+  }
+
   segBtns.forEach(b =>
     b.addEventListener("click", () => {
       const was = rainbow;
       applyTheme(b.dataset.themeValue);
       // Only on the way in, and only from a real press — never on load, and
       // never when leaving rainbow for something sober.
-      if (!was && rainbow) chime();
+      if (!was && rainbow && soundOn) chime();
     }));
 
   // Light is the default; another mode only if explicitly chosen before.

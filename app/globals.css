@@ -192,6 +192,23 @@
     color: var(--muted);
     transition: color .2s;
   }
+  /* Sound control. Hidden outside rainbow, since that is the only mode that
+     makes any noise — a "sound" button on a silent page just puzzles people. */
+  .sound {
+    display: none;
+    margin-left: 10px;
+    appearance: none; background: none; border: 0; cursor: pointer;
+    font: inherit; font-size: 9.5px; line-height: 1;
+    letter-spacing: .12em; text-transform: uppercase;
+    padding: 7px 2px;
+    color: var(--muted);
+    transition: color .2s;
+  }
+  :root[data-theme="rainbow"] .sound { display: inline-block; }
+  .sound:hover { color: var(--soft); }
+  .sound[aria-pressed="true"] { color: var(--text); }
+  .sound:focus-visible { outline: 1px solid var(--text); outline-offset: 2px; }
+
   .seg-btn:hover { color: var(--soft); }
   .seg-btn[aria-checked="true"] { color: var(--text); }
   .seg-btn:focus-visible { outline: 1px solid var(--text); outline-offset: 2px; border-radius: 6px; }
@@ -211,7 +228,8 @@
     h1       { order: 1; }
     .kicker  { order: 2; }
     .seg     { order: 3; }
-    .wrap    { order: 4; }   /* the hint now lives inside .wrap */
+    .sound   { order: 4; margin: 0 0 22px; }
+    .wrap    { order: 5; }   /* the hint now lives inside .wrap */
     .seg {
       position: relative;
       display: flex;
