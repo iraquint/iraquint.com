@@ -6,6 +6,9 @@
  * disc that grows out of the pointer; after a hold it fills back in the same
  * way. Called once on mount; returns a teardown for React.
  */
+
+import chime from "./chime";
+
 export default function mountInk() {
   let rafId = 0;
   // Same clock as the rAF timestamp, so the intro delay can be measured in-loop.
@@ -176,7 +179,13 @@ export default function mountInk() {
   }
 
   segBtns.forEach(b =>
-    b.addEventListener("click", () => applyTheme(b.dataset.themeValue)));
+    b.addEventListener("click", () => {
+      const was = rainbow;
+      applyTheme(b.dataset.themeValue);
+      // Only on the way in, and only from a real press — never on load, and
+      // never when leaving rainbow for something sober.
+      if (!was && rainbow) chime();
+    }));
 
   // Light is the default; another mode only if explicitly chosen before.
   let saved = null;
