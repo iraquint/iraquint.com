@@ -41,7 +41,9 @@
 
   /* Gold shimmer, scoped to the footer easter egg. Custom properties inherit,
      so the canvas picks these up per element without any special-casing. */
-  :root { --gold: #9a7310; }
+  /* Bar gold. Brighter than the easter-egg text gold: a 2px line needs more
+     saturation to read as gold on white, where #9a7310 looks brown. */
+  :root { --gold: #c8961f; }
   :root[data-theme="dark"], :root[data-theme="rainbow"] { --gold: #e2b855; }
 
   .gold {
@@ -86,7 +88,7 @@
      uncovered, and turns gold once everything — the footer secret included —
      has been read. --p is written by the ink engine each frame. */
   .rule {
-    height: 1px; background: var(--rule); margin: 30px 0;
+    height: 2px; background: var(--rule); margin: 30px 0;
     position: relative; overflow: hidden;
   }
   .rule::after {

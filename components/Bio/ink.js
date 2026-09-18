@@ -19,7 +19,7 @@ export default function mountInk() {
 
   const REVEAL  = 600;    // ms for the reveal disc to clear the whole line
   const HOLD    = 5000;   // ms legible after the pointer leaves
-  const FADE    = 3000;   // ms for the redaction disc to swallow the line
+  const FADE    = 2000;   // ms for the redaction disc to swallow the line
   const RESET   = 240;    // ms to collapse a redaction when the pointer comes back
   const INTRO   = 450;    // ms before the instruction un-redacts itself on load
   const FEATHER = 0.74;   // inner fraction of a disc that is fully solid
