@@ -10,7 +10,8 @@
  * timer, because setInterval drifts and throttles; the audio clock does not.
  */
 
-const STEP = 0.125;      // seconds per sixteenth
+const BPM = 149;               // the tempo the genre runs at
+const STEP = 60 / BPM / 4;     // seconds per sixteenth ≈ 0.1007
 // Schedule a long way ahead. Browsers throttle timers in background tabs, but
 // notes already queued play on the audio clock regardless — so a generous
 // lookahead is what keeps the loop from stuttering when the tab loses focus.
