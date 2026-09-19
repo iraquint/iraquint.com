@@ -6,10 +6,12 @@
  * frame — is the whole point of the genre, so it gets marked when it happens.
  */
 
-const SIZE = 96;        // px, matches the CSS box
-const SPEED = 82;       // px per second
-const POP_MS = 420;     // click-to-pop duration
-const POP_SCALE = 0.38; // how far it swells at the peak
+const SIZE = 96;         // px, matches the CSS box
+const SPEED = 82;        // px per second
+const POP_MS = 420;      // click-to-pop duration
+const POP_SCALE = 0.30;  // extra swell at the peak of a click
+const HOVER_SCALE = 1.4; // held-open size while the cursor is on it
+const EASE = 9;          // how quickly the hover swell catches up, per second
 
 export default function mountFloater(el) {
   if (!el || typeof window === "undefined") return () => {};
@@ -38,6 +40,7 @@ export default function mountFloater(el) {
   let raf = 0;
   let last = 0;
   let flash = 0;
+  let swell = 1;   // current hover size, eased toward its target each frame
 
   // Hover is measured against the cursor rather than listened for on the
   // element: it is pointer-events:none so that it can never swallow a click,
@@ -55,7 +58,7 @@ export default function mountFloater(el) {
   let popAt = 0;
   const onClick = (e) => {
     const inside =
-      Math.hypot(e.clientX - (x + SIZE / 2), e.clientY - (y + SIZE / 2)) <= SIZE / 2;
+      Math.hypot(e.clientX - (x + SIZE / 2), e.clientY - (y + SIZE / 2)) <= (SIZE / 2) * swell;
     if (!inside) return;
     popAt = performance.now();
     el.classList.add("pop");     // set here, not in the loop, so the ring
@@ -75,34 +78,41 @@ export default function mountFloater(el) {
 
     ({ maxX, maxY } = bounds());
 
-    // Catch it by hovering: it holds still, and keeps its heading for when
-    // the cursor leaves.
-    const held = Math.hypot(mx - (x + SIZE / 2), my - (y + SIZE / 2)) <= SIZE / 2;
-    el.classList.toggle("held", held);
+    // It never stops travelling — hovering swells it instead, which reads as
+    // "look at me" rather than "caught".
+    x += vx * dt;
+    y += vy * dt;
 
-    if (!held) {
-      x += vx * dt;
-      y += vy * dt;
+    let hitX = false;
+    let hitY = false;
+    if (x <= 0)        { x = 0;    vx = Math.abs(vx);  hitX = true; }
+    else if (x >= maxX){ x = maxX; vx = -Math.abs(vx); hitX = true; }
+    if (y <= 0)        { y = 0;    vy = Math.abs(vy);  hitY = true; }
+    else if (y >= maxY){ y = maxY; vy = -Math.abs(vy); hitY = true; }
 
-      let hitX = false;
-      let hitY = false;
-      if (x <= 0)        { x = 0;    vx = Math.abs(vx);  hitX = true; }
-      else if (x >= maxX){ x = maxX; vx = -Math.abs(vx); hitX = true; }
-      if (y <= 0)        { y = 0;    vy = Math.abs(vy);  hitY = true; }
-      else if (y >= maxY){ y = maxY; vy = -Math.abs(vy); hitY = true; }
+    if (hitX && hitY) corner();   // the one everyone waits for
 
-      if (hitX && hitY) corner();   // the one everyone waits for
-    }
+    // Test against the drawn radius, so the swell keeps itself under the
+    // cursor instead of flickering at the rim it just grew past.
+    const hovered =
+      Math.hypot(mx - (x + SIZE / 2), my - (y + SIZE / 2)) <= (SIZE / 2) * swell;
+    el.classList.toggle("hovered", hovered);
 
-    // The pop lives in this transform rather than a CSS animation, because
-    // the loop rewrites transform every frame and would overwrite one.
-    let scale = 1;
+    // Ease toward the hover size rather than snapping to it.
+    const target = hovered ? HOVER_SCALE : 1;
+    swell += (target - swell) * Math.min(1, dt * EASE);
+
+    // The click pop rides on top of whatever the hover swell is doing. Both
+    // live in this transform because the loop rewrites it every frame and
+    // would overwrite a CSS animation on the same property.
+    let pop = 0;
     if (popAt) {
       const k = (now - popAt) / POP_MS;
       if (k >= 1) { popAt = 0; el.classList.remove("pop"); }
-      else scale = 1 + POP_SCALE * Math.sin(Math.PI * k);   // up and back
+      else pop = POP_SCALE * Math.sin(Math.PI * k);   // up and back
     }
 
+    const scale = swell + pop;
     el.style.transform =
       `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) scale(${scale.toFixed(3)})`;
   }
