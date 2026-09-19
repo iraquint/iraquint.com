@@ -7,7 +7,7 @@
  */
 
 const SIZE = 96;         // px, matches the CSS box
-const SPEED = 82;        // px per second
+const SPEED = 105;       // px per second
 const POP_MS = 420;      // click-to-pop duration
 const POP_SCALE = 0.30;  // extra swell at the peak of a click
 const HOVER_SCALE = 1.4; // held-open size while the cursor is on it
