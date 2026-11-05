@@ -4,7 +4,7 @@ const nextConfig = {
     return [
       {
         source: "/resume",
-        destination: "/assets/ira_quint_resume_september_2026.pdf",
+        destination: "/assets/ira_quint_resume_november_2026.pdf",
         permanent: false,
       },
     ];
