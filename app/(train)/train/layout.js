@@ -1,4 +1,5 @@
 import { Barlow_Condensed } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./train.css";
 
 // /train has its own root layout so the homepage's monospace sheet styles
@@ -20,7 +21,11 @@ export default function TrainLayout({ children }) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        {/* Page views, so it's clear whether shared links bring visits. */}
+        <Analytics />
+      </body>
     </html>
   );
 }
