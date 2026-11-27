@@ -27,10 +27,24 @@ const spotsDetail = SPOTS_OPEN === 0 ? "Full for now. Apply to join the waitlist
 
 // Every apply link opens the same pre-filled email. The pricing cards add the
 // plan to the subject, so it's clear which one someone picked.
+//
+// Line breaks are CRLF, as the mailto spec (RFC 6068) requires: some mail
+// apps, Gmail on iOS among them, drop bare LFs and run the questions together.
+// They're numbered too, so even an app that flattens the body still reads
+// "1. … 2. … 3. …" rather than one run-on line.
+const APPLY_BODY = [
+  "1. What I'm training for:",
+  "",
+  "2. What I do now:",
+  "",
+  "3. One number I want to move:",
+  "",
+].join("\r\n");
 const applyHref = (plan) =>
   "mailto:ira.j.quint@gmail.com?subject=" +
   encodeURIComponent(plan ? `Training application: ${plan}` : "Training application") +
-  "&body=What%20I%27m%20training%20for%3A%0A%0AWhat%20I%20do%20now%3A%0A%0AOne%20number%20I%20want%20to%20move%3A%0A";
+  "&body=" +
+  encodeURIComponent(APPLY_BODY).replace(/'/g, "%27");
 const APPLY = applyHref();
 
 const BENEFITS = [
