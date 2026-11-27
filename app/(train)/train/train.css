@@ -1,0 +1,265 @@
+/* /train — sprint coaching page. Ported from the train-iq.html mockup: its
+   inline styles became the classes below, values unchanged. */
+
+:root {
+  --bg: #FAFAF7; --fg: #111111; --body: #333333; --muted: #5C5C5C;
+  --line: #E2E2DC; --card: #FFFFFF; --accent: #1E3A8A; --onAccent: #FFFFFF;
+  --display: var(--font-barlow), sans-serif;
+}
+html.dark {
+  --bg: #000000; --fg: #FFFFFF; --body: #E5E7EB; --muted: #A3A3A3;
+  --line: #2A2A2A; --card: #0E0E0E; --accent: #9DB8F0; --onAccent: #0B1B3F;
+}
+
+body { margin: 0; background: var(--bg); }
+
+/* "See the two paths" glides down instead of jumping. In-page anchors only;
+   reduced motion keeps the instant jump. */
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}
+/* Land with a little air above the section heading, not flush to the top. */
+#paths { scroll-margin-top: 32px; }
+a:hover { opacity: .8; }
+
+/* ---------- page frame ---------- */
+
+.page {
+  min-height: 100vh;
+  background: var(--bg); color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  padding: 40px 24px 64px; box-sizing: border-box;
+}
+.col { max-width: 680px; margin: 0 auto; display: flex; flex-direction: column; gap: 80px; }
+
+/* ---------- shared type ---------- */
+
+/* Small caps-style labels: section headings, path numbers, tags. */
+.eyebrow {
+  margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 3px;
+  text-transform: uppercase; color: var(--accent);
+}
+.eyebrow.muted { color: var(--muted); }
+.eyebrow.sm { font-size: 11px; }
+
+/* Light uppercase labels: definition terms, units, captions, footer. */
+.label {
+  font-size: 12px; font-weight: 300; letter-spacing: 1.4px;
+  text-transform: uppercase; color: var(--muted);
+}
+.label.sm { font-size: 11px; }
+
+.display { margin: 0; font-family: var(--display); font-weight: 800; text-transform: uppercase; }
+
+.copy { margin: 0; font-size: 16px; line-height: 1.6; color: var(--body); }
+.note { margin: 0; font-size: 14px; line-height: 1.6; color: var(--muted); }
+
+/* ---------- nav ---------- */
+
+.nav { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+.brand {
+  font-family: var(--display); font-weight: 800; font-size: 26px;
+  letter-spacing: 2px; text-transform: uppercase; line-height: 1;
+  color: var(--fg); text-decoration: none;
+}
+.nav-right { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+.toggle {
+  min-height: 44px; padding: 0 16px;
+  background: transparent; border: 1px solid var(--line); border-radius: 999px;
+  color: var(--fg); font: inherit; font-size: 12px; font-weight: 600;
+  letter-spacing: 3px; text-transform: uppercase; cursor: pointer;
+}
+
+/* ---------- hero ---------- */
+
+.hero { display: flex; flex-direction: column; gap: 24px; margin-top: -48px; }
+.hero-meta { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.loc { display: inline-flex; align-items: center; gap: 6px; }
+.hero-title { font-size: clamp(48px, 9vw, 84px); line-height: 0.95; letter-spacing: 0; }
+.lede { margin: 0; font-size: 19px; line-height: 1.55; color: var(--body); }
+
+/* The sprint clip breaks out of the 680px column to span the window, so
+   the run goes edge to edge. 3:1, capped so it never swallows a short
+   screen. .page clips the sideways overflow 100vw can cause. */
+.page { overflow-x: clip; }
+.sprint {
+  width: 100vw; margin-left: calc(50% - 50vw);
+  aspect-ratio: 3 / 1; max-height: 70vh;
+  background: var(--line); overflow: hidden;
+}
+.sprint video { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.tagline { margin: 0; font-size: 19px; line-height: 1.55; color: var(--fg); font-weight: 600; max-width: 540px; }
+
+/* ---------- buttons ---------- */
+
+.ctas { display: flex; gap: 12px; flex-wrap: wrap; }
+.btn {
+  display: inline-flex; align-items: center; min-height: 48px;
+  text-decoration: none; font-size: 15px; border-radius: 999px;
+}
+.btn-solid  { padding: 0 24px; background: var(--fg); color: var(--bg); font-weight: 600; }
+.btn-accent { padding: 0 24px; background: var(--accent); color: var(--onAccent); font-weight: 600; }
+.btn-ghost  { padding: 0 22px; border: 1px solid var(--line); color: var(--fg); font-weight: 500; }
+.btn-ghost.icon { gap: 8px; }
+
+/* ---------- sections ---------- */
+
+.section { display: flex; flex-direction: column; gap: 20px; }
+.section.loose { gap: 24px; }
+.section-title { font-size: clamp(40px, 7vw, 64px); line-height: 0.95; }
+.why { margin: 0; font-size: 18px; line-height: 1.6; color: var(--body); max-width: 560px; }
+
+.quote {
+  margin: 0; padding: 4px 0 4px 20px; border-left: 3px solid var(--accent);
+  display: flex; flex-direction: column; gap: 8px;
+}
+.quote blockquote {
+  margin: 0; font-family: var(--display); font-size: 30px; line-height: 1.1;
+  font-weight: 700; text-transform: uppercase;
+}
+
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.grid.tests { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.grid.stats { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+
+.benefit { border-top: 2px solid var(--accent); padding-top: 16px; display: flex; flex-direction: column; gap: 8px; }
+.benefit-title { margin: 0; font-weight: 600; font-size: 17px; }
+.benefit-body { margin: 0; font-size: 15px; line-height: 1.6; color: var(--body); }
+
+.card {
+  background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+  padding: 24px; display: flex; flex-direction: column; gap: 10px;
+}
+.card-title { font-size: 28px; line-height: 1; }
+
+/* ---------- how it works ---------- */
+
+.steps { display: flex; flex-direction: column; border-bottom: 1px solid var(--line); }
+.step { display: flex; gap: 24px; padding: 20px 0; border-top: 1px solid var(--line); }
+.step-num {
+  font-size: 12px; font-weight: 600; letter-spacing: 3px; color: var(--accent);
+  width: 32px; flex-shrink: 0; padding-top: 4px;
+}
+.step-text { display: flex; flex-direction: column; gap: 4px; }
+.step-title { margin: 0; font-weight: 600; font-size: 18px; }
+
+/* ---------- what we measure ---------- */
+
+.subhead { margin: 0; font-weight: 600; font-size: 18px; }
+.subhead.spaced { margin: 8px 0 0; }
+.subhead span { font-weight: 400; color: var(--muted); }
+
+.rows { margin: 0; display: flex; flex-direction: column; border-bottom: 1px solid var(--line); }
+.row { display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-top: 1px solid var(--line); }
+.row dt { padding-top: 2px; }
+.row dd { margin: 0; font-weight: 500; font-size: 15px; text-align: right; }
+.rows.roomy .row { padding: 14px 0; }
+.rows.roomy .row dd { font-size: 16px; }
+
+.test {
+  background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+  padding: 20px 16px; display: flex; flex-direction: column;
+  justify-content: space-between; gap: 16px; min-height: 190px;
+}
+.test-name { font-weight: 600; font-size: 17px; line-height: 1.25; }
+
+/* ---------- animated test figures ---------- */
+
+.sf { width: 100%; height: 72px; overflow: visible; color: var(--accent); }
+.sf * { transform-box: view-box; }
+.bob { animation: bob .25s ease-in-out infinite alternate; }
+@keyframes bob { from { transform: translateY(0) } to { transform: translateY(-1.5px) } }
+.leg1, .leg2 { transform-origin: 38px 32px; }
+.arm1, .arm2 { transform-origin: 42px 20px; }
+.leg1, .leg2, .arm1, .arm2 { animation: stride .5s ease-in-out infinite alternate; }
+.leg2, .arm1 { animation-delay: -.5s; }
+@keyframes stride { from { transform: rotate(-30deg) } to { transform: rotate(30deg) } }
+.wind { animation: wind .6s linear infinite; }
+@keyframes wind { from { transform: translateX(8px); opacity: 0 } 50% { opacity: 1 } to { transform: translateX(-10px); opacity: 0 } }
+.tbody { animation: tbody 2s ease-out infinite; }
+@keyframes tbody { 0%, 15% { transform: translateY(3px) } 35% { transform: translateY(-3px) } 60%, 100% { transform: translateY(0) } }
+/* Backward med ball toss. Starts hinged at the hips with the ball low in
+   front; the hips extend and the torso leans back (.lean, about the hip)
+   while the arms swing up past overhead into a reach behind (.toss, about the
+   shoulder). At full extension (32%) the held ball hands off to the flying
+   one, which leaves from that exact spot and arcs out behind, left to right.
+   The path's start is the held ball's position at 32%: keep them in step. */
+.lean { transform-origin: 26px 34px; animation: lean 2s ease-in-out infinite; }
+@keyframes lean { 0%, 15% { transform: rotate(-15deg) } 32%, 50% { transform: rotate(25deg) } 100% { transform: rotate(-15deg) } }
+.toss { transform-origin: 23px 21px; animation: toss 2s ease-in-out infinite; }
+@keyframes toss { 0%, 15% { transform: rotate(-150deg) } 32%, 50% { transform: rotate(-15deg) } 100% { transform: rotate(-150deg) } }
+.held { animation: held 2s step-end infinite; }
+@keyframes held { 0% { opacity: 1 } 32% { opacity: 0 } 96%, 100% { opacity: 1 } }
+.ball { offset-path: path('M40.5 -2 Q 62 -26 76 52'); offset-rotate: 0deg; opacity: 0; animation: ball 2s linear infinite; }
+@keyframes ball { 0%, 31.9% { offset-distance: 0%; opacity: 0 } 32% { offset-distance: 0%; opacity: 1 } 78% { offset-distance: 100%; opacity: 1 } 90%, 100% { offset-distance: 100%; opacity: 0 } }
+.vj { animation: vj 1.8s cubic-bezier(.3, 0, .3, 1) infinite; }
+@keyframes vj { 0%, 10% { transform: translateY(0) } 25% { transform: translateY(5px) } 50% { transform: translateY(-18px) } 75%, 100% { transform: translateY(0) } }
+.mark { animation: mark 1.8s linear infinite; }
+@keyframes mark { 0%, 46% { opacity: .4 } 50%, 62% { opacity: 1 } 70%, 100% { opacity: .4 } }
+.bj { animation: bj 2.2s ease-in-out infinite; }
+@keyframes bj { 0%, 15% { transform: translate(0, 0); opacity: 1 } 45% { transform: translate(16px, -20px) } 70%, 85% { transform: translate(32px, 0); opacity: 1 } 95% { transform: translate(32px, 0); opacity: 0 } 96% { transform: translate(0, 0); opacity: 0 } 100% { transform: translate(0, 0); opacity: 1 } }
+/* Broad-jump legs, on the same 2.2s clock as the body: bend and load, drive
+   straight back off the ground, tuck at the peak, reach, then absorb the
+   landing. Thighs pivot at the hip, shins at the knee; positive = backward. */
+.bj .thigh { transform-origin: 21px 34px; animation: bj-thigh 2.2s ease-in-out infinite; }
+.bj .shin  { transform-origin: 21px 45px; animation: bj-shin 2.2s ease-in-out infinite; }
+@keyframes bj-thigh { 0%, 10% { transform: rotate(-20deg) } 20% { transform: rotate(-35deg) } 30% { transform: rotate(25deg) } 48% { transform: rotate(-80deg) } 66% { transform: rotate(-55deg) } 74%, 85% { transform: rotate(-30deg) } 96%, 100% { transform: rotate(-20deg) } }
+@keyframes bj-shin  { 0%, 10% { transform: rotate(40deg) } 20% { transform: rotate(70deg) } 30% { transform: rotate(0) } 48% { transform: rotate(85deg) } 66% { transform: rotate(40deg) } 74%, 85% { transform: rotate(60deg) } 96%, 100% { transform: rotate(40deg) } }
+
+/* ---------- coach ---------- */
+
+.coach { display: flex; gap: 24px; flex-wrap: wrap; align-items: center; }
+.coach-photo {
+  flex: 0 0 192px; width: 192px; height: 240px; border-radius: 12px;
+  object-fit: cover; display: block;
+}
+.bio { flex: 1 1 300px; display: flex; flex-direction: column; gap: 12px; }
+.coach-name { font-size: 36px; line-height: 1; }
+.bio-copy { margin: 0; font-size: 17px; line-height: 1.6; color: var(--body); }
+
+.stat { border-top: 2px solid var(--accent); padding-top: 12px; display: flex; flex-direction: column; gap: 4px; }
+.stat-value { font-family: var(--display); font-size: 30px; line-height: 1.05; font-weight: 700; }
+.stat-note { font-size: 13px; color: var(--muted); }
+
+/* ---------- pricing ---------- */
+
+.card.price { gap: 12px; }
+.card.featured { border-color: var(--accent); }
+.price-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.price-foot {
+  margin-top: auto; padding-top: 12px; border-top: 1px solid var(--line);
+  display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap;
+}
+.price-amount { margin: 0; font-weight: 600; font-size: 18px; }
+.price-founding { margin: 0; font-size: 13px; font-weight: 600; color: var(--accent); }
+/* Per-plan apply link: same voice as the founding rate, so it sits in the
+   card rather than competing with the price. 44px tall for a thumb. */
+.price-apply {
+  display: inline-flex; align-items: center; align-self: flex-start;
+  min-height: 44px; margin-bottom: -12px;
+  font-size: 13px; font-weight: 600; color: var(--accent); text-decoration: none;
+}
+
+/* ---------- closing ---------- */
+
+.apply {
+  background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+  padding: 40px 32px; display: flex; flex-direction: column; gap: 18px;
+}
+.apply-title { font-size: 44px; line-height: 1; }
+.apply-copy { margin: 0; font-size: 17px; line-height: 1.6; color: var(--body); max-width: 500px; }
+
+.footer { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+.footer .plain { text-transform: none; letter-spacing: 0; }
+
+/* ---------- phone ---------- */
+
+@media (max-width: 560px) {
+  .stack-m { flex-direction: column !important; align-items: center !important; flex-wrap: nowrap !important; }
+  .stack-m > * { flex: 0 0 auto !important; }
+  .stack-m > p, .stack-m > div:not([role]) { align-self: stretch; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sf * { animation: none !important; }
+}
