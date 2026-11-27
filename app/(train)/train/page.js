@@ -3,11 +3,27 @@ import Image from "next/image";
 import ThemeToggle from "./ThemeToggle";
 import SprintStrip from "./SprintStrip";
 
+const TITLE = "Training · Ira Quint";
+const DESCRIPTION =
+  "Sprint coaching for adults in Arlington, VA and the DC area. Two paths: build the foundation, or learn to sprint.";
+
+// The preview image itself is opengraph-image.jpg beside this file; Next adds
+// the og:image tags. metadataBase makes its URL absolute on the real domain
+// rather than a Vercel deployment URL.
 export const metadata = {
-  title: "Training · Ira Quint",
-  description:
-    "Sprint coaching for adults in Arlington, VA and the DC area. Two paths: build the foundation, or learn to sprint.",
+  metadataBase: new URL("https://iraquint.com"),
+  title: TITLE,
+  description: DESCRIPTION,
+  alternates: { canonical: "/train" },
+  openGraph: { title: TITLE, description: DESCRIPTION, url: "/train", siteName: "Ira Quint", type: "website" },
+  twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
 };
+
+// How many training spots are left. The nav badge and the Details row both
+// read from this, so filling a spot is a one-number change.
+const SPOTS_OPEN = 2;
+const spotsBadge = SPOTS_OPEN === 0 ? "Waitlist open" : `${SPOTS_OPEN} spot${SPOTS_OPEN === 1 ? "" : "s"} open`;
+const spotsDetail = SPOTS_OPEN === 0 ? "Full for now. Apply to join the waitlist." : `${SPOTS_OPEN}. That's it.`;
 
 // Every apply link opens the same pre-filled email. The pricing cards add the
 // plan to the subject, so it's clear which one someone picked.
@@ -51,7 +67,7 @@ const DETAILS = [
   ["Where", "Washington-Liberty track or other Arlington / DC fields"],
   ["When", "Around your schedule: early mornings or evenings"],
   ["Billing", "Every 4 weeks"],
-  ["Spots", "2. That's it."],
+  ["Spots", spotsDetail],
 ];
 
 /* ---------- animated figures for the performance tests ---------- */
@@ -185,7 +201,7 @@ export default function TrainPage() {
         <nav className="nav">
           <Link href="/" className="brand">Ira Quint</Link>
           <div className="nav-right">
-            <span className="eyebrow muted">2 spots open</span>
+            <span className="eyebrow muted">{spotsBadge}</span>
             <ThemeToggle />
           </div>
         </nav>
